@@ -73,7 +73,7 @@
 - (NSSize)intrinsicContentSize
 {
     CGFloat width = 8 + MAX(0, _buttons.arrangedSubviews.count - 1) * _buttons.spacing;
-    CGFloat height = 26;
+    CGFloat height = 22;
     for (NSView *view in _buttons.arrangedSubviews) width += view.intrinsicContentSize.width;
     return NSMakeSize(width, height);
 }
@@ -82,7 +82,7 @@
 {
     [super layout];
     _glass.frame = self.bounds;
-    if (_buttons.superview == self) _buttons.frame = NSInsetRect(self.bounds, 4, 2);
+    if (_buttons.superview == self) _buttons.frame = NSInsetRect(self.bounds, 4, 0);
 }
 
 @end

@@ -36,6 +36,13 @@ NSString * const kOverdueSectionExpanded = @"OverdueSectionExpanded";
 NSString * const kShowEventPopoverOnHover = @"ShowEventPopoverOnHover";
 NSString * const kDoNotCheckLoginItemStatus = @"DoNotCheckLoginItemStatus";
 NSString * const kUseLiquidGlass = @"UseLiquidGlass";
+
+BOOL ItsycalUsesGlass(void)
+{
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kUseLiquidGlass] &&
+        !NSWorkspace.sharedWorkspace.accessibilityDisplayShouldReduceTransparency &&
+        !NSWorkspace.sharedWorkspace.accessibilityDisplayShouldIncreaseContrast;
+}
 NSString * const kWindowPosition = @"WindowPosition";
 NSString * const kTimerEndDate = @"TimerEndDate";
 NSString * const kTimerRecentMinutes = @"TimerRecentMinutes";

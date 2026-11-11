@@ -1,5 +1,6 @@
 #import <AppKit/AppKit.h>
 #import "GlassButtonGroup.h"
+#import "Itsycal.h"
 #import "ItsycalWindow.h"
 #import "Themer.h"
 
@@ -7,11 +8,13 @@ int main(void)
 {
     @autoreleasepool {
         [NSApplication sharedApplication];
+        [NSUserDefaults.standardUserDefaults registerDefaults:@{kUseLiquidGlass: @YES}];
         [Themer shared];
         NSButton *previous = [NSButton buttonWithTitle:@"Previous" target:nil action:nil];
         NSButton *next = [NSButton buttonWithTitle:@"Next" target:nil action:nil];
         GlassButtonGroup *group = [[GlassButtonGroup alloc] initWithButtons:@[previous, next]];
         group.frame = NSMakeRect(0, 0, 180, 26);
+        if (group.intrinsicContentSize.height != 22) return 11;
         NSWindow *window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0, 0, 220, 80) styleMask:NSWindowStyleMaskBorderless backing:NSBackingStoreBuffered defer:NO];
         [window.contentView addSubview:group];
         group.usesGlass = YES;

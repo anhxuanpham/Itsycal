@@ -897,8 +897,10 @@ static const CGFloat kReminderFillGap = 1;
 
 - (void)drawRect:(NSRect)dirtyRect
 {
-    // Must be opaque so rows can scroll under it.
-    [Theme.mainBackgroundColor set];
+    // Keep rows below a scrolling heading legible without hiding the popup material.
+    NSColor *background = Theme.mainBackgroundColor;
+    NSColor *fillColor = ItsycalUsesGlass() ? [background colorWithAlphaComponent:0.85] : background;
+    [fillColor set];
     NSRectFillUsingOperation(self.bounds, NSCompositingOperationSourceOver);
     NSRect r = NSMakeRect(10, self.bounds.size.height - 4, self.bounds.size.width - 20, 1);
     [Theme.agendaDividerColor set];

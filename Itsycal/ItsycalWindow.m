@@ -164,7 +164,7 @@ static const CGFloat kVerticalPadding = 11;
 
 - (void)updateBackground
 {
-    BOOL showMaterial = _usesGlass && !NSWorkspace.sharedWorkspace.accessibilityDisplayShouldReduceTransparency && !NSWorkspace.sharedWorkspace.accessibilityDisplayShouldIncreaseContrast;
+    BOOL showMaterial = _usesGlass && ItsycalUsesGlass();
     _materialBackground.hidden = !showMaterial;
     [self setNeedsDisplay:YES];
 }

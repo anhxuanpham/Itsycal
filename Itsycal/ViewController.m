@@ -38,7 +38,7 @@ static NSArray<NSString *> *ObservedDefaultsKeys(void)
     return @[kShowEventDays, kMenuBarIconType, kShowMonthInIcon, kShowDayOfWeekInIcon,
               kShowDaysWithNoEventsInAgenda, kShowMeetingIndicator, kHideIcon,
               kBaselineOffset, kClockFormat, kWindowPosition, kShowCompletedReminders,
-              kShowOverdueReminders];
+              kShowOverdueReminders, kUseLiquidGlass];
 }
 
 // One of a day's dot colors, for -dotColorsForDate:useColor:.
@@ -142,7 +142,9 @@ static NSArray<NSString *> *ObservedDefaultsKeys(void)
     _btnPin.keyEquivalentModifierMask = 0;
     _btnPin.alternateImage = [NSImage imageNamed:@"btnPinAlt"];
     [_btnPin setButtonType:NSButtonTypeToggle];
-    GlassButtonGroup *actionGroup = [[GlassButtonGroup alloc] initWithButtons:@[_btnAdd, _btnPin, _btnCal, _btnOpt]];
+    GlassButtonGroup *addGroup = [[GlassButtonGroup alloc] initWithButtons:@[_btnAdd]];
+    [v addSubview:addGroup];
+    GlassButtonGroup *actionGroup = [[GlassButtonGroup alloc] initWithButtons:@[_btnPin, _btnCal, _btnOpt]];
     [v addSubview:actionGroup];
 
     // The buttons' tooltips. Their badges show the key equivalents.
@@ -170,11 +172,11 @@ static NSArray<NSString *> *ObservedDefaultsKeys(void)
     [v addSubview:agenda];
 
     // Constraints
-    MoVFLHelper *vfl = [[MoVFLHelper alloc] initWithSuperview:v metrics:nil views:NSDictionaryOfVariableBindings(_moCal, actionGroup, agenda)];
+    MoVFLHelper *vfl = [[MoVFLHelper alloc] initWithSuperview:v metrics:nil views:NSDictionaryOfVariableBindings(_moCal, addGroup, actionGroup, agenda)];
     [vfl :@"H:|-2-[_moCal]-2-|"];
     [vfl :@"H:|[agenda]|"];
-    [vfl :@"H:|-(>=8)-[actionGroup]-8-|" :NSLayoutFormatAlignAllCenterY];
-    [vfl :@"V:|[_moCal]-6-[actionGroup(26)]-1-[agenda]-(-1)-|"];
+    [vfl :@"H:|-8-[addGroup]-(>=0)-[actionGroup]-8-|" :NSLayoutFormatAlignAllCenterY];
+    [vfl :@"V:|[_moCal]-6-[actionGroup(22)]-1-[agenda]-(-1)-|"];
     
     self.view = v;
 }
@@ -1654,6 +1656,12 @@ static NSArray<NSString *> *ObservedDefaultsKeys(void)
     }];
     [_notificationTokens addObject:token];
 
+    token = [NSWorkspace.sharedWorkspace.notificationCenter addObserverForName:NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification object:nil queue:NSOperationQueue.mainQueue usingBlock:^(NSNotification *note) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf refreshGlassContent];
+    }];
+    [_notificationTokens addObject:token];
+
     // Observe NSUserDefaults for preference changes
     for (NSString *keyPath in ObservedDefaultsKeys()) {
         [[NSUserDefaults standardUserDefaults] addObserver:self forKeyPath:keyPath options:NSKeyValueObservingOptionNew context:NULL];
@@ -1662,6 +1670,12 @@ static NSArray<NSString *> *ObservedDefaultsKeys(void)
 
 #pragma mark -
 #pragma mark NSUserDefaults observer
+
+- (void)refreshGlassContent
+{
+    [_moCal setNeedsDisplay:YES];
+    [_agendaVC reloadDataKeepingScrollPosition];
+}
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context
 {
@@ -1674,6 +1688,9 @@ static NSArray<NSString *> *ObservedDefaultsKeys(void)
     else if ([keyPath isEqualToString:kShowDaysWithNoEventsInAgenda] ||
         [keyPath isEqualToString:kShowOverdueReminders]) {
         [self updateAgenda];
+    }
+    else if ([keyPath isEqualToString:kUseLiquidGlass]) {
+        [self refreshGlassContent];
     }
     else if ([keyPath isEqualToString:kMenuBarIconType] ||
              [keyPath isEqualToString:kShowMonthInIcon] ||
